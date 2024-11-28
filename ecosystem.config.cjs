@@ -3,7 +3,7 @@ module.exports = {
     {
       name: "portfolio-preview",
       script: "npm",
-      args: "run preview",
+      args: "run preview -- --host",
       env: {
         NODE_ENV: "production",
       },
