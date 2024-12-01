@@ -36,7 +36,7 @@ jobs:
               with:
                   host: ${{ secrets.HOST_BETA }}
                   username: ${{ secrets.USER_BETA }}
-                  password: ${{ secrets.PASSWORD_BETA }}
+                  key: ${{ secrets.KEY_BETA }}
                   port: ${{ secrets.PORT_BETA }}
                   script: |
                       export NVM_DIR=~/.nvm
