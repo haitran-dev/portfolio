@@ -36,7 +36,8 @@ jobs:
               with:
                   host: ${{ secrets.HOST_PROD }}
                   username: ${{ secrets.USER_PROD }}
-                  password: ${{ secrets.KEY_PROD }}
+                  key: ${{ secrets.KEY_PROD }}
+                  passphrase: ${{ secrets.SSH_PASSPHRASE_PROD }}
                   port: ${{ secrets.PORT_PROD }}
                   script: |
                       export NVM_DIR=~/.nvm
