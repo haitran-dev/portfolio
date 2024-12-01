@@ -1,26 +1,51 @@
 name: Deploy to beta user on VPS
 
 on:
-    push:
-        branches: ["beta"]
+  push:
+    branches: ["beta"]
 
 permissions:
-    contents: read
+  contents: read
 
 jobs:
-    build-and-deploy:
-        runs-on: ubuntu-24.04
-        steps:
-            - name: Checkout repository
-              uses: actions/checkout@v4
+  build:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-            - name: Setup Node.js
-              uses: actions/setup-node@v4
-              with:
-                  node-version: 20
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
 
-            - name: Install dependencies
-              run: npm install
+      - name: Create .env file
+        run: echo "${{secrets.ENV_BETA}}" > .env
 
-            - name: Build
-              run: npm run build
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build
+        run: npm run build
+  deploy:
+    needs: build
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Deploy on VPS via SSH
+        uses: appleboy/ssh-action@v0.1.6
+        with:
+          host: ${{ secrets.HOST_BETA }}
+          username: ${{ secrets.USER_BETA }}
+          password: ${{ secrets.PASSWORD_BETA }}
+          port: ${{ secrets.PORT_BETA }}
+          script: |
+            export NVM_DIR=~/.nvm
+            source ~/.nvm/nvm.sh
+            cd ~/portfolio
+            git fetch --all
+            git reset --hard origin/beta
+            git pull origin beta
+            echo "${{secrets.ENV_BETA}}" > .env
+            npm i --force
+            npm run build
+            pm2 restart portfolio-preview
