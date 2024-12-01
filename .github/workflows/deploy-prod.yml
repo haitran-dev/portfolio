@@ -2,7 +2,7 @@ name: Deploy to prod user on VPS
 
 on:
     push:
-        branches: ["prod"]
+        branches: ["main"]
 
 permissions:
     contents: read
