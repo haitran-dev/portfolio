@@ -8,27 +8,7 @@ permissions:
     contents: read
 
 jobs:
-    build:
-        runs-on: ubuntu-24.04
-        steps:
-            - name: Checkout repository
-              uses: actions/checkout@v4
-
-            - name: Setup Node.js
-              uses: actions/setup-node@v4
-              with:
-                  node-version: 20
-
-            - name: Create .env file
-              run: echo "${{secrets.ENV_BETA}}" > .env
-
-            - name: Install dependencies
-              run: npm install
-
-            - name: Build
-              run: npm run build
     deploy:
-        needs: build
         runs-on: ubuntu-24.04
         steps:
             - name: Deploy on VPS via SSH
@@ -40,13 +20,28 @@ jobs:
                   passphrase: ${{ secrets.SSH_PASSPHRASE_BETA }}
                   port: ${{ secrets.PORT_BETA }}
                   script: |
-                      export NVM_DIR=~/.nvm
-                      source ~/.nvm/nvm.sh
                       cd ~/portfolio
                       git fetch --all
                       git reset --hard origin/beta
                       git pull origin beta
                       echo "${{secrets.ENV_BETA}}" > .env
-                      npm i --force
-                      npm run build
-                      pm2 restart portfolio-preview
+
+                      # Stop and remove existing containers
+                      docker compose down || true
+
+                      # Remove any stopped containers and unused images
+                      docker system prune -f
+
+                      # Check if port 8081 is in use and kill the process if needed
+                      sudo lsof -ti:8081 | xargs -r sudo kill -9
+                      
+                      # Set environment variables for docker-compose
+                      export PORT=8081
+                      export CONTAINER_NAME=portfolio-beta
+
+                      # Build and start the new container
+                      docker compose build --no-cache
+                      docker compose up -d portfolio
+                      
+                      # Verify the container is running
+                      docker compose ps
