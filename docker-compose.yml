@@ -1,11 +1,10 @@
-version: '3.8'
-
 services:
   portfolio:
     build: .
     image: haittdocker/portfolio:v0
+    container_name: ${CONTAINER_NAME:-portfolio}
     ports:
-      - "8080:8080"
+      - "${PORT:-8080}:8080"
     restart: unless-stopped
     environment:
       - NODE_ENV=production
