@@ -30,17 +30,19 @@ jobs:
                       export CONTAINER_NAME=portfolio-prod
                       export PORT=8080
                       export IMAGE_TAG=prod
+                      export PROJECT_NAME=portfolio-prod
+                      export COMPOSE_PROJECT_NAME=portfolio-prod
                       
-                      # Stop only the production container
-                      docker compose down portfolio || true
+                      # Stop and remove only production container
+                      docker compose -p portfolio-prod down || true
                       
-                      # Remove only production container and its images
-                      docker rm -f $CONTAINER_NAME || true
+                      # Clean up any orphaned containers/images
+                      docker rm -f portfolio-prod || true
                       docker rmi haittdocker/portfolio:prod || true
                       
-                      # Build and start the new container
-                      docker compose build --no-cache
-                      docker compose up -d portfolio
+                      # Build and start the new container with project name
+                      docker compose -p portfolio-prod build --no-cache
+                      docker compose -p portfolio-prod up -d portfolio
                       
                       # Verify the container is running
-                      docker compose ps
+                      docker compose -p portfolio-prod ps

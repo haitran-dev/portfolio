@@ -30,17 +30,19 @@ jobs:
                       export CONTAINER_NAME=portfolio-beta
                       export PORT=8081
                       export IMAGE_TAG=beta
+                      export PROJECT_NAME=portfolio-beta
+                      export COMPOSE_PROJECT_NAME=portfolio-beta
                       
-                      # Stop only the beta container
-                      docker compose down portfolio || true
+                      # Stop and remove only beta container
+                      docker compose -p portfolio-beta down || true
                       
-                      # Remove only beta container and its images
-                      docker rm -f $CONTAINER_NAME || true
+                      # Clean up any orphaned containers/images
+                      docker rm -f portfolio-beta || true
                       docker rmi haittdocker/portfolio:beta || true
                       
-                      # Build and start the new container
-                      docker compose build --no-cache
-                      docker compose up -d portfolio
+                      # Build and start the new container with project name
+                      docker compose -p portfolio-beta build --no-cache
+                      docker compose -p portfolio-beta up -d portfolio
                       
                       # Verify the container is running
-                      docker compose ps
+                      docker compose -p portfolio-beta ps
