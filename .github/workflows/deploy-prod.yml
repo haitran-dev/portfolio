@@ -26,16 +26,17 @@ jobs:
                       git pull origin main
                       echo "${{secrets.ENV_PROD}}" > .env
                       
-                      # Stop only the production container
+                      # Set environment variables
                       export CONTAINER_NAME=portfolio-prod
+                      export PORT=8080
+                      export IMAGE_TAG=prod
+                      
+                      # Stop only the production container
                       docker compose down portfolio || true
                       
                       # Remove only production container and its images
                       docker rm -f $CONTAINER_NAME || true
-                      docker rmi haittdocker/portfolio:v0 || true
-                      
-                      # Set environment variables for docker-compose
-                      export PORT=8080
+                      docker rmi haittdocker/portfolio:prod || true
                       
                       # Build and start the new container
                       docker compose build --no-cache

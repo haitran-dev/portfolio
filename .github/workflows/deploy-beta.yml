@@ -26,16 +26,17 @@ jobs:
                       git pull origin beta
                       echo "${{secrets.ENV_BETA}}" > .env
                       
-                      # Stop only the beta container
+                      # Set environment variables
                       export CONTAINER_NAME=portfolio-beta
+                      export PORT=8081
+                      export IMAGE_TAG=beta
+                      
+                      # Stop only the beta container
                       docker compose down portfolio || true
                       
                       # Remove only beta container and its images
                       docker rm -f $CONTAINER_NAME || true
-                      docker rmi haittdocker/portfolio:v0 || true
-                      
-                      # Set environment variables for docker-compose
-                      export PORT=8081
+                      docker rmi haittdocker/portfolio:beta || true
                       
                       # Build and start the new container
                       docker compose build --no-cache
