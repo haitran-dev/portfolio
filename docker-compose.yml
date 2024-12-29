@@ -1,7 +1,11 @@
 services:
   portfolio:
-    build: .
-    image: haittdocker/portfolio:v0
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - NODE_ENV=production
+    image: haittdocker/portfolio:${IMAGE_TAG:-latest}
     container_name: ${CONTAINER_NAME:-portfolio}
     ports:
       - "${PORT:-8080}:8080"
