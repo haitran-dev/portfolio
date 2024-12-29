@@ -25,20 +25,18 @@ jobs:
                       git reset --hard origin/beta
                       git pull origin beta
                       echo "${{secrets.ENV_BETA}}" > .env
-
-                      # Stop and remove existing containers
-                      docker compose down || true
-
-                      # Remove any stopped containers and unused images
-                      docker system prune -f
-
-                      # Check if port 8081 is in use and kill the process if needed
-                      sudo lsof -ti:8081 | xargs -r sudo kill -9
+                      
+                      # Stop only the beta container
+                      export CONTAINER_NAME=portfolio-beta
+                      docker compose down portfolio || true
+                      
+                      # Remove only beta container and its images
+                      docker rm -f $CONTAINER_NAME || true
+                      docker rmi haittdocker/portfolio:v0 || true
                       
                       # Set environment variables for docker-compose
                       export PORT=8081
-                      export CONTAINER_NAME=portfolio-beta
-
+                      
                       # Build and start the new container
                       docker compose build --no-cache
                       docker compose up -d portfolio

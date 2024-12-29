@@ -25,17 +25,21 @@ jobs:
                       git reset --hard origin/main
                       git pull origin main
                       echo "${{secrets.ENV_PROD}}" > .env
-                      # Stop and remove existing containers
-                      docker compose down || true
-                      # Remove any stopped containers and unused images
-                      docker system prune -f
-                      # Check if port 8080 is in use and kill the process if needed
-                      sudo lsof -ti:8080 | xargs -r sudo kill -9
+                      
+                      # Stop only the production container
+                      export CONTAINER_NAME=portfolio-prod
+                      docker compose down portfolio || true
+                      
+                      # Remove only production container and its images
+                      docker rm -f $CONTAINER_NAME || true
+                      docker rmi haittdocker/portfolio:v0 || true
+                      
                       # Set environment variables for docker-compose
                       export PORT=8080
-                      export CONTAINER_NAME=portfolio-prod
+                      
                       # Build and start the new container
                       docker compose build --no-cache
                       docker compose up -d portfolio
+                      
                       # Verify the container is running
                       docker compose ps
